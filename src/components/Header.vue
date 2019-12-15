@@ -1,6 +1,11 @@
 <template>
-  <header class="header" v-bind:class="[isPanelOpen? open : '']" @click="closePanel">
-    <div class="top-menu">
+  <header
+    class="header"
+    v-bind:class="[isPanelOpen? open : '']"
+    @click="closePanel"
+    @scroll="handleScroll"
+  >
+    <div class="top-menu" v-bind:class="{sticky : isSticky }">
       <Logo/>
       <Burger/>
       <transition name="slide">
@@ -21,16 +26,23 @@ export default {
   data() {
     return {
       noDisplay: "no-display",
-      open: "panel-open"
+      open: "panel-open",
+      isSticky: true
     };
   },
   methods: {
-    closePanel: mutations.toggleNav()
+    closePanel: mutations.toggleNav(),
+    handleScroll: function(e) {
+      this.isSticky = window.scrollY > window.innerHeight / 2;
+    }
   },
   computed: {
     isPanelOpen() {
       return store.isNavOpen;
     }
+  },
+  created() {
+    window.addEventListener("scroll", this.handleScroll);
   }
 };
 </script>
@@ -40,21 +52,29 @@ header.header {
   background-image: url("http://placehold.it/1000x1000");
   background-size: cover;
   background-position: center;
+  height: 90vh;
 }
 .top-menu {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
 }
 .top-menu > *:last-child {
   flex: 0 0 100%;
+}
+.sticky {
+  position: fixed;
+  background: white;
+  z-index: 2;
 }
 
 @media screen and (max-width: 768px) {
   header.header {
     background-image: none;
     background-color: skyblue;
+    height: initial;
   }
   .panel-open {
     height: 100%;
